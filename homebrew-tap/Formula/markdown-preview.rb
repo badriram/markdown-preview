@@ -27,20 +27,20 @@ class MarkdownPreview < Formula
   end
 
   def post_install
-    # Install Quick Action for current user
-    system "#{bin}/markdown-preview", "--install"
+    # Try to install Quick Action for current user (may fail due to macOS sandboxing)
+    if !system("#{bin}/markdown-preview", "--install")
+      opoo "Could not auto-install Quick Action. Run manually: markdown-preview --install"
+    end
   end
 
   def caveats
     <<~EOS
-      Quick Action installed for current user.
+      If the Quick Action wasn't installed automatically, run:
+        markdown-preview --install
 
       Usage:
         • Right-click any .md file in Finder → Quick Actions → Markdown Preview
         • Or from terminal: markdown-preview /path/to/file.md
-
-      Other users on this Mac need to run:
-        markdown-preview --install
 
       For system-wide install (all users):
         sudo markdown-preview --install-system
