@@ -1,0 +1,43 @@
+name: Update Homebrew Formula
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  update-formula:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get version from tag
+        id: version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+      - name: Download and calculate SHA256
+        id: sha
+        run: |
+          curl -sL "https://github.com/${{ github.repository }}/archive/refs/tags/${{ steps.version.outputs.VERSION }}.tar.gz" -o release.tar.gz
+          SHA256=$(sha256sum release.tar.gz | cut -d' ' -f1)
+          echo "SHA256=$SHA256" >> $GITHUB_OUTPUT
+
+      - name: Checkout homebrew-tools
+        uses: actions/checkout@v4
+        with:
+          repository: badriram/homebrew-tools
+          token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+          path: homebrew-tools
+
+      - name: Update formula
+        run: |
+          cd homebrew-tools
+          sed -i 's|url "https://github.com/badriram/markdown-preview/archive/refs/tags/v.*\.tar\.gz"|url "https://github.com/badriram/markdown-preview/archive/refs/tags/${{ steps.version.outputs.VERSION }}.tar.gz"|' Formula/markdown-preview.rb
+          sed -i 's|sha256 ".*"|sha256 "${{ steps.sha.outputs.SHA256 }}"|' Formula/markdown-preview.rb
+
+      - name: Commit and push
+        run: |
+          cd homebrew-tools
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add Formula/markdown-preview.rb
+          git commit -m "Bump markdown-preview to ${{ steps.version.outputs.VERSION }}"
+          git push
