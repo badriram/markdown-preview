@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Custom macOS Automator actions. Primary use case: generate PDF previews of Markdown files for Quick Look viewing and printing in Finder.
+macOS Finder Quick Action to preview Markdown files as PDF using pandoc + weasyprint.
 
 ## Installation
 
@@ -36,7 +36,7 @@ markdown-preview file.md output.pdf   # Save to specific path
 ## Architecture
 
 ```
-automatorActions/
+markdown-preview/
 ├── scripts/
 │   └── md-to-pdf.sh              # Main script (pandoc → weasyprint)
 ├── styles/
@@ -75,6 +75,6 @@ brew install pandoc weasyprint
 
 1. Create GitHub repo `badriram/homebrew-tools`
 2. Copy `homebrew-tap/Formula/markdown-preview.rb` to the repo
-3. Create release tag `v0.1.0` in this repo (automatorActions)
-4. Get SHA256: `curl -sL https://github.com/badriram/automatorActions/archive/refs/tags/v0.1.0.tar.gz | shasum -a 256`
+3. Create release tag in this repo: `git tag vX.Y.Z && git push origin vX.Y.Z`
+4. Get SHA256: `curl -sL https://github.com/badriram/markdown-preview/archive/refs/tags/vX.Y.Z.tar.gz | shasum -a 256`
 5. Update formula with the SHA256
