@@ -1,8 +1,8 @@
 class MarkdownPreview < Formula
   desc "Generate PDF previews of Markdown files for macOS Finder Quick Look"
   homepage "https://github.com/badriram/markdown-preview"
-  url "https://github.com/badriram/markdown-preview/archive/refs/tags/v0.1.1.tar.gz"
-  sha256 "884402ba436077cf9cf5f79cb79d9705861d35c4afbe13185a971e705efe5ec6"
+  url "https://github.com/badriram/markdown-preview/archive/refs/tags/v0.1.2.tar.gz"
+  sha256 "34036458ae2335d3fbbe8a621cce85299620bca64a595d6e9f93cda80a05a0a1"
   license "MIT"
 
   depends_on "pandoc"
