@@ -37,6 +37,8 @@ markdown-preview file.md output.pdf   # Save to specific path
 
 ```
 markdown-preview/
+├── .github/workflows/
+│   └── release.yml               # Auto-updates Homebrew formula on tag
 ├── scripts/
 │   └── md-to-pdf.sh              # Main script (pandoc → weasyprint)
 ├── styles/
@@ -71,10 +73,24 @@ brew install pandoc weasyprint
 ./scripts/md-to-pdf.sh --install
 ```
 
-### Publishing the Homebrew Tap
+### Releasing a New Version
 
-1. Create GitHub repo `badriram/homebrew-tools`
-2. Copy `homebrew-tap/Formula/markdown-preview.rb` to the repo
-3. Create release tag in this repo: `git tag vX.Y.Z && git push origin vX.Y.Z`
-4. Get SHA256: `curl -sL https://github.com/badriram/markdown-preview/archive/refs/tags/vX.Y.Z.tar.gz | shasum -a 256`
-5. Update formula with the SHA256
+Release is automated via GitHub Actions. Just tag and push:
+
+```bash
+git tag v0.2.0 && git push origin v0.2.0
+```
+
+The workflow automatically:
+1. Calculates SHA256 of the release tarball
+2. Updates the formula in `badriram/homebrew-tools`
+3. Commits and pushes
+
+**Required secret:** `HOMEBREW_TAP_TOKEN` - a fine-grained PAT with write access to `homebrew-tools` repo.
+
+### Repos
+
+| Repo | Purpose |
+|------|---------|
+| [markdown-preview](https://github.com/badriram/markdown-preview) | Main source code |
+| [homebrew-tools](https://github.com/badriram/homebrew-tools) | Homebrew tap (`brew tap badriram/tools`) |
