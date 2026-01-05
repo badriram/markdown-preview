@@ -40,11 +40,11 @@ if [[ "${1:-}" == "--install" || "${1:-}" == "--install-system" ]]; then
 
     mkdir -p "$SERVICES_DIR"
 
-    # Remove old version
-    rm -rf "$SERVICES_DIR/Markdown Preview.workflow"
+    # Remove old version (ignore errors from permission issues)
+    rm -rf "$SERVICES_DIR/Markdown Preview.workflow" 2>/dev/null || true
 
-    # Copy workflow
-    cp -r "$WORKFLOW_SRC" "$SERVICES_DIR/"
+    # Copy workflow (force overwrite)
+    cp -Rf "$WORKFLOW_SRC" "$SERVICES_DIR/"
 
     # Refresh services menu
     /System/Library/CoreServices/pbs -update 2>/dev/null || true
