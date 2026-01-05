@@ -14,7 +14,7 @@ CSS_FILE="$STYLES_DIR/print.css"
 
 # Handle install flags
 if [[ "${1:-}" == "--install" || "${1:-}" == "--install-system" ]]; then
-    WORKFLOW_SRC="/opt/homebrew/share/markdown-preview/Markdown Preview.workflow"
+    WORKFLOW_SRC="$SCRIPT_DIR/../share/markdown-preview/Markdown Preview.workflow"
 
     if [[ ! -d "$WORKFLOW_SRC" ]]; then
         echo "Error: Workflow not found. Is markdown-preview installed via Homebrew?" >&2
