@@ -43,11 +43,12 @@ markdown-preview/
 │   └── md-to-pdf.sh              # Main script (pandoc → weasyprint)
 ├── styles/
 │   └── print.css                 # Print-friendly CSS
-├── workflows/
-│   └── Markdown Preview.workflow # Automator Quick Action bundle
-└── homebrew-tap/
-    └── Formula/markdown-preview.rb
+└── workflows/
+    └── Markdown Preview.workflow # Automator Quick Action bundle
 ```
+
+The Homebrew formula lives in the tap repo, `badriram/homebrew-tools` (`Formula/markdown-preview.rb`),
+not in this repo; `release.yml` updates it.
 
 ### Conversion Flow
 
