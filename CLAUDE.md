@@ -1,97 +1,53 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+markdown-preview: a macOS Finder Quick Action that previews Markdown as PDF (pandoc → WeasyPrint).
+User-facing install and usage live in README.md.
 
-## Project Overview
-
-macOS Finder Quick Action to preview Markdown files as PDF using pandoc + weasyprint.
-
-## Installation
-
-```bash
-brew tap badriram/tools
-brew install markdown-preview
-```
-
-This installs for the current user. Other users on the same Mac need to run:
-```bash
-markdown-preview --install
-```
-
-For system-wide install (all users):
-```bash
-sudo markdown-preview --install-system
-```
-
-## Usage
-
-**From Finder:** Right-click `.md` file → Quick Actions → Markdown Preview
-
-**From terminal:**
-```bash
-markdown-preview file.md              # Preview (PDF in temp, opens Preview.app)
-markdown-preview file.md output.pdf   # Save to specific path
-```
-
-## Architecture
+## Layout
 
 ```
-markdown-preview/
-├── .github/workflows/
-│   └── release.yml               # Auto-updates Homebrew formula on tag
-├── scripts/
-│   └── md-to-pdf.sh              # Main script (pandoc → weasyprint)
-├── styles/
-│   └── print.css                 # Print-friendly CSS
-└── workflows/
-    └── Markdown Preview.workflow # Automator Quick Action bundle
+scripts/md-to-pdf.sh               # the tool; installed as `markdown-preview`
+styles/print.css                   # print CSS embedded into the HTML
+workflows/Markdown Preview.workflow  # Automator Quick Action, copied to ~/Library/Services
+.github/workflows/release.yml      # bumps the Homebrew formula on a vX.Y.Z tag
 ```
 
-The Homebrew formula lives in the tap repo, `badriram/homebrew-tools` (`Formula/markdown-preview.rb`),
-not in this repo; `release.yml` updates it.
+Flow: pandoc renders standalone HTML with the CSS, WeasyPrint renders the PDF into `$TMPDIR` (or the
+given output path), then `open` shows it in Preview.
 
-### Conversion Flow
+## The formula is coupled to this repo
 
-1. `pandoc` converts Markdown → standalone HTML with embedded CSS
-2. `weasyprint` converts HTML → PDF
-3. PDF saved to `$TMPDIR` (temp, auto-cleaned) and opens in Preview.app
+`Formula/markdown-preview.rb` lives in the tap repo `badriram/homebrew-tools`, shared with DockPeek's
+cask and bonsai. It installs those three paths verbatim and `inreplace`s the exact line
+`STYLES_DIR="$SCRIPT_DIR/../styles"` in the script; `inreplace` aborts the install if that line
+changes. `release.yml` only bumps `url` and `sha256`, so any rename, new file or edit to that line
+needs a matching hand edit to the formula in `homebrew-tools` before tagging. Check the formula
+whenever you touch the layout.
 
-### Install Locations
+## Test locally
 
-| Component | Location | Scope |
-|-----------|----------|-------|
-| Script, styles | `/opt/homebrew/` | System-wide |
-| Quick Action | `~/Library/Services/` | Per-user |
-| Quick Action | `/Library/Services/` | System-wide (with `--install-system`) |
-
-## Development
-
-### Test locally
-
-```bash
+```sh
 brew install pandoc weasyprint
-./scripts/md-to-pdf.sh ./CLAUDE.md
-./scripts/md-to-pdf.sh --install
+./scripts/md-to-pdf.sh ./README.md
+./scripts/md-to-pdf.sh --install     # Quick Action for the current user
 ```
 
-### Releasing a New Version
+## Releasing
 
-Release is automated via GitHub Actions. Just tag and push:
+Tag `vX.Y.Z` and push. `release.yml` validates the tag, hashes GitHub's source tarball for it, and
+commits the new `url`/`sha256` to the formula in `badriram/homebrew-tools`.
 
-```bash
-git tag v0.2.0 && git push origin v0.2.0
-```
+- Tags matching `v*` can't be moved or deleted (ruleset), because the formula installs the tag's
+  tarball: a wrong tag gets fixed by tagging the next version.
+- Actions are limited to GitHub-owned actions pinned to a commit SHA; Dependabot proposes bumps.
+  New steps must follow that, or the run is rejected.
+- Expressions like `${{ github.ref_name }}` reach shell steps through `env:`, never inline in
+  `run:` (script injection with the tap token in scope).
+- `HOMEBREW_TAP_TOKEN` (repo secret) must be a fine-grained token limited to Contents read/write on
+  `homebrew-tools`. Fine-grained tokens expire: when the formula stops bumping, check it first.
 
-The workflow automatically:
-1. Calculates SHA256 of the release tarball
-2. Updates the formula in `badriram/homebrew-tools`
-3. Commits and pushes
+## Public repo hygiene
 
-**Required secret:** `HOMEBREW_TAP_TOKEN` - a fine-grained PAT with write access to `homebrew-tools` repo.
-
-### Repos
-
-| Repo | Purpose |
-|------|---------|
-| [markdown-preview](https://github.com/badriram/markdown-preview) | Main source code |
-| [homebrew-tools](https://github.com/badriram/homebrew-tools) | Homebrew tap (`brew tap badriram/tools`) |
+Commits use `badriram <1929515+badriram@users.noreply.github.com>`. Keep the owner's full name,
+personal email and Apple Developer account details out of new commits and files. Older history
+still carries them; that was a deliberate choice, not something to rewrite.
